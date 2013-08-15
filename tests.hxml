@@ -1,0 +1,6 @@
+-lib tink_macro
+-cp src
+-cp tests
+-main Run
+-neko bin/tests.n
+#iota start Run.bat
