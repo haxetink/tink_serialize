@@ -5,6 +5,7 @@ import haxe.unit.TestRunner;
 import tink.serialize.*;
 
 class BasicTest extends TestCase {
+	
 	static var EDGE_CASES = [
 		      0x00 => '00',
 		      0x7F => '7F',
