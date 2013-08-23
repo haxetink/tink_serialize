@@ -22,6 +22,9 @@ abstract Output<T:haxe.io.Output>(T) from T to T {
 		while (size >= 0) 
 			writeByte((i >> (8 * size--)) & 0xFF);
 	}
+	public function writeFloat(x) this.writeFloat(x);
+	public function writeDouble(x) this.writeDouble(x);
+	
 	public function writeString(s:String) {
 		s = StringTools.urlEncode(s);
 		writeLength(s.length);
@@ -30,8 +33,4 @@ abstract Output<T:haxe.io.Output>(T) from T to T {
 	static public function bytes():Output<haxe.io.BytesOutput> {
 		return new haxe.io.BytesOutput();
 	}
-}
-
-typedef Cache = {
-	
 }
