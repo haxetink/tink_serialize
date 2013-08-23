@@ -5,7 +5,8 @@ import haxe.unit.TestRunner;
 
 class Run {
 	static var tests:Array<TestCase> = [
-		new BasicTest()
+		new BasicTest(),
+		new SerializerTest()
 	];
 	static function main() {
 		var runner = new TestRunner();
