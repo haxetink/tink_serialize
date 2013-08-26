@@ -37,7 +37,17 @@ class Serializer<D, T:haxe.io.Output> {
 		this.strings = new Cache<String, T>(o, new StringMap());
 		this.anons = new Cache<Dynamic, T>(o, new ObjectMap());
 	}
+	
+	function writeMap<K, V>(m:Map.IMap<K, V>, writeKey, writeVal) {
+		var keys = [for (key in m.keys()) key];//TODO: this seems stupid to do since most implementations construct this array internally already
 		
+		o.writeInt(keys.length);
+		for (key in keys) {
+			writeKey(key);
+			writeVal(m.get(key));
+		}
+	}
+	
 	public function serialize(data:D) 
 		throw 'abstract';
 	
