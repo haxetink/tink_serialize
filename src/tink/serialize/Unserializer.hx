@@ -39,7 +39,14 @@ class Unserializer<D, T:haxe.io.Input> {
 		this.strings = new Cache<String, T>(i);
 		this.anons = new Cache<Dynamic, T>(i);
 	}	
-		
+	
+	function readMap<K, V>(m:Map<K, V>, readKey:Void->K, readVal:Void->V) {
+		for (i in 0...i.readInt())
+			m.set(readKey(), readVal());
+		return m;
+	}
+	
+	
 	public function unserialize():D 
 		return throw 'abstract';
 	

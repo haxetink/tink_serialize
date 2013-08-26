@@ -136,6 +136,19 @@ class Build {
 												}]).at());
 												
 												macro anons.read($reader);
+											case map if (Context.unify(map, (macro : Map<Dynamic, Dynamic>).toType().sure())):
+												var ct = map.toComplex();
+												
+												function reader(name) 
+													return getReader((macro {
+														var map:$ct = null;
+														map.$name().next();
+													}).typeof().sure());
+													
+												var k = reader('keys'),
+													v = reader('iterator');
+												macro readMap(new Map(), $k, $v);	
+												
 											case v: 
 												Context.currentPos().error('Type not supported: $t');
 										}
@@ -217,6 +230,19 @@ class Build {
 													getWriter(f.type).call([['data', f.name].drill()]),
 												].toBlock());
 												macro anons.write(data, $writer);
+												
+											case map if (Context.unify(map, (macro : Map<Dynamic, Dynamic>).toType().sure())):
+												var ct = map.toComplex();
+												
+												function writer(name) 
+													return getWriter((macro {
+														var map:$ct = null;
+														map.$name().next();
+													}).typeof().sure());
+													
+												var k = writer('keys'),
+													v = writer('iterator');
+												macro writeMap(data, $k, $v);	
 											case v: 
 												Context.currentPos().error('Type not supported: $t');
 										}

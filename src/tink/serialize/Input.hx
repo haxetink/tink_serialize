@@ -4,7 +4,7 @@ abstract Input<T:haxe.io.Input>(T) from T to T {
 	public function readByte():Int 
 		return this.readByte();
 		
-	public inline function readInt(?first:Null<Int> = null):Int {
+	function doReadInt(?first:Null<Int> = null):Int {
 		var b = 
 			if (first == null) readByte();
 			else first;
@@ -15,7 +15,9 @@ abstract Input<T:haxe.io.Input>(T) from T to T {
 			else if (b < 0xF0) ((b & 0x0F) << 24) + (readByte() << 16) + (readByte() << 8) + readByte();
 			else (readByte() << 24) + (readByte() << 16) + (readByte() << 8) + readByte();
 	}
-	
+	public inline function readInt():Int
+		return doReadInt();
+		
 	public inline function readFloat():Float
 		return this.readDouble();
 		
@@ -29,7 +31,7 @@ abstract Input<T:haxe.io.Input>(T) from T to T {
 	public inline function readNullInt():Null<Int>
 		return switch readByte() {
 			case 0xFF: null;
-			case v: readInt(v);
+			case v: doReadInt(v);
 		}
 		
 	public inline function readBool():Bool 

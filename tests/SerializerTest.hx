@@ -86,6 +86,28 @@ class SerializerTest extends Base {
 									break;
 								}
 						ret;
+					case TClass(_) if (Std.is(e, Map.IMap)):
+						var e:Map.IMap<Dynamic, Dynamic> = e,
+							f:Map.IMap<Dynamic, Dynamic> = f;
+							
+						var ret = true;
+						function find(orig:Dynamic) {
+							for (copy in f.keys())
+								if (compare(orig, copy)) 
+									return copy;
+							return orig;
+						}
+						if (ret)
+							for (k in e.keys())
+								if (!compare(e.get(k), f.get(find(k)))) {
+									ret = false;
+									break;
+								}
+						if (!ret) {
+							trace(e.toString());
+							trace(f.toString());
+						}
+						ret;
 					default:
 						throw 'assert';
 				}
@@ -106,6 +128,9 @@ class SerializerTest extends Base {
 		roundtrip(Three(5, 4));
 		roundtrip(Four(true));
 		roundtrip(Four(true, 6));
+		roundtrip(["foo" => 5, "quack" => 6]);
+		roundtrip([1 => 5, 3 => 6]);
+		roundtrip([{ x: 3 } => true, { x: 5} => false ]);
 	}
 	function testComplex() {
 		roundtrip([for (i in 0...100) {

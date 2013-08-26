@@ -15,3 +15,7 @@ class Run {
 		runner.run();
 	}
 }
+
+class Write extends tink.serialize.Serializer<Map<String, Int>, haxe.io.BytesOutput> {}
+
+class Read extends tink.serialize.Unserializer<Map<String, Int>, haxe.io.Input> {}
