@@ -15,12 +15,11 @@ private class Cache<D, T:haxe.io.Output> {
 		if (data == null) o.writeByte(0);
 		else {
 			var id = map.get(data);
+			o.writeNullInt(id);
 			if (id == null) {
 				map.set(data, id = counter++);
-				o.writeLength(id);
 				encoder(data);
 			}
-			else o.writeLength(id);			
 		}
 }
 
@@ -37,32 +36,6 @@ class Serializer<D, T:haxe.io.Output> {
 		this.idents = new Cache<String, T>(o, new StringMap());
 		this.strings = new Cache<String, T>(o, new StringMap());
 		this.anons = new Cache<Dynamic, T>(o, new ObjectMap());
-	}
-	
-	inline function writeInt(data:Int) 
-		o.writeLength(data);
-		
-	inline function writeNullInt(data:Null<Int>)
-		if (data == null) o.writeByte(0xFF);
-		else o.writeLength(data);
-		
-	inline function writeBool(data:Bool) 
-		o.writeByte(data ? 1 : 0);
-		
-	inline function writeNullBool(data:Null<Bool>) 
-		o.writeByte(
-			if (data == true) 1 
-			else if (data == false) 0 
-			else 0xFF
-		);
-		
-	inline function writeFloat(data:Float)
-		o.writeDouble(data);
-		
-	inline function writeNullFloat(data:Null<Float>) {
-		writeBool(data == null);
-		if (data != null)
-			writeFloat(data);
 	}
 		
 	public function serialize(data:D) 

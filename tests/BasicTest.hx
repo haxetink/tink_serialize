@@ -27,12 +27,12 @@ class BasicTest extends TestCase {
 			return fake.clear();			
 			
 		for (v in EDGE_CASES.keys()) {
-			o.writeLength(v);
+			o.writeInt(v);
 			assertEquals(EDGE_CASES[v], fetch());
 		}
 	}
 	
-	function testReadLength() {
+	function testReadInt() {
 		
 		var fake = new FakeInput();
 		var i:Input<FakeInput> = fake;
@@ -40,7 +40,7 @@ class BasicTest extends TestCase {
 		
 		for (v in EDGE_CASES.keys()) {
 			fake.fill(EDGE_CASES[v]);
-			assertEquals(v, i.readLength());
+			assertEquals(v, i.readInt());
 			assertTrue(fake.isEmpty());
 		}
 	}
@@ -56,9 +56,9 @@ class BasicTest extends TestCase {
 		for (x in 0...100) {
 			var v = Std.random(1 << Std.random(30)) << 2;//way to deal with neko's Std.random weirdness and to distribute evenly over different size
 			for (v in [v, v + 1, v + 2, v + 3]) {
-				o.writeLength(v);
+				o.writeInt(v);
 				fakeIn.fill(fakeOut.clear());
-				assertEquals(v, i.readLength());
+				assertEquals(v, i.readInt());
 				assertTrue(fakeIn.isEmpty());
 			}
 		}

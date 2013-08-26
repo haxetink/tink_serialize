@@ -63,12 +63,13 @@ class Build {
 			return
 				switch t {
 					case TType(nil, [p]) if (nil.toString() == 'Null' && '[Int][Float][Bool]'.indexOf('['+p.getID()+']') != -1):
-						macro $i{'readNull'+p.getID()};
+						('i.readNull'+p.getID()).resolve();
 					default:
 						var id = t.getID();
 						switch id {
-							case 'String', 'Int', 'Bool', 'Float': 
-								macro $i{'read$id'};
+							case 'String': macro readString;
+							case 'Int', 'Bool', 'Float': 
+								'i.read$id'.resolve();
 							default: 
 								t = t.reduce();
 								var sig = Context.signature(t) + Std.string(t);
@@ -117,7 +118,7 @@ class Build {
 													cl = cl.toString();
 												macro {
 													var ret = new $cl();
-													for (i in 0...i.readLength())
+													for (_ in 0...i.readInt())
 														ret.push($reader());
 													ret;
 												}
@@ -151,12 +152,13 @@ class Build {
 			return
 				switch t {
 					case TType(nil, [p]) if (nil.toString() == 'Null' && '[Int][Float][Bool]'.indexOf('['+p.getID()+']') != -1):
-						macro $i{'writeNull'+p.getID()};
+						('o.writeNull'+p.getID()).resolve();
 					default:
 						var id = t.getID();
 						switch id {
-							case 'String', 'Int', 'Bool', 'Float': 
-								macro $i{'write$id'};
+							case 'String': macro writeString;
+							case 'Int', 'Bool', 'Float': 
+								'o.write$id'.resolve();
 							default: 
 								t = t.reduce();
 								var sig = Context.signature(t) + Std.string(t);
@@ -176,7 +178,7 @@ class Build {
 													e = e.get();
 												var index = 1;
 												for (name in e.names) {
-													var encode = [macro writeInt($v{index++})];	
+													var encode = [macro o.writeInt($v{index++})];	
 													var info = getEnumInfo(e, name);
 													
 													for (p in info.signature)
@@ -195,7 +197,7 @@ class Build {
 											case TInst(cl, params) if (cl.toString() == 'Array' || cl.toString() == 'List'):
 												var writer = getWriter(params[0]);
 												macro {
-													o.writeLength(data.length);
+													o.writeInt(data.length);
 													for (data in data)
 														$writer(data);
 												}
