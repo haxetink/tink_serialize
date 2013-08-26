@@ -77,7 +77,9 @@ class Build {
 									
 									function addReader(body:Expr) {
 										var name = 'read_' + ret.length;
-										ret.push(tink.macro.Member.method(name, body.func(t.toComplex())));									
+										var reader = tink.macro.Member.method(name, body.func(t.toComplex()));
+										ret.push(reader);
+										reader.isPublic = false;
 										return name.resolve(body.pos);
 									}	
 									var body = [];
@@ -96,7 +98,6 @@ class Build {
 												
 												add(macro null);
 												for (name in e.names) {
-													// var encode = [macro writeInt($v{index++})];	
 													var info = getEnumInfo(e, name);
 													var ret = name.resolve();
 													if (info.signature.length > 0)
@@ -137,9 +138,9 @@ class Build {
 								complexReaders.get(sig);								
 						}						
 				}
-		
-		var main = getReader(getParam('tink.serialize.Unserializer'));
-		var m = tink.macro.Member.method('unserialize', (macro $main()).func());
+		var type = getParam('tink.serialize.Unserializer');
+		var main = getReader(type);
+		var m = tink.macro.Member.method('unserialize', (macro $main()).func(type.toComplex()));
 		m.overrides = true;
 		ret.push(m);			
 		return ret;

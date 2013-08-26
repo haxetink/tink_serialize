@@ -40,8 +40,9 @@ class Unserializer<D, T:haxe.io.Input> {
 		this.anons = new Cache<Dynamic, T>(i);
 	}	
 		
-	public function unserialize():D return throw 'abstract';
+	public function unserialize():D 
+		return throw 'abstract';
 	
-	public function readString():String
+	function readString():String
 		return strings.read(i.readString);
 }

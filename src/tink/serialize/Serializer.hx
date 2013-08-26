@@ -41,6 +41,6 @@ class Serializer<D, T:haxe.io.Output> {
 	public function serialize(data:D) 
 		throw 'abstract';
 	
-	public function writeString(s:String)
+	function writeString(s:String)
 		strings.write(s, o.writeString);
 }
