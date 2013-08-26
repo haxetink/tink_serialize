@@ -56,19 +56,25 @@ class Build {
 		fields.sort(function (f1, f2) return Reflect.compare(f1.name, f2.name));
 		return fields;
 	}
+	static var isPrimitive = [
+		'Int' => true,
+		'Single' => true,
+		'Float' => true,
+		'Bool' => true
+	].exists;
 	static public function unserializer():Array<Field> {
 		var ret = [],
 			complexReaders = new haxe.ds.StringMap<Expr>();
 		function getReader(t:Type):Expr
 			return
 				switch t {
-					case TType(nil, [p]) if (nil.toString() == 'Null' && '[Int][Float][Bool]'.indexOf('['+p.getID()+']') != -1):
+					case TType(nil, [p]) if (nil.toString() == 'Null' && isPrimitive(p.getID())):
 						('i.readNull'+p.getID()).resolve();
 					default:
 						var id = t.getID();
 						switch id {
 							case 'String': macro readString;
-							case 'Int', 'Bool', 'Float': 
+							case 'Int', 'Bool', 'Float', 'Single': 
 								'i.read$id'.resolve();
 							default: 
 								t = t.reduce();
@@ -152,13 +158,14 @@ class Build {
 		function getWriter(t:Type):Expr
 			return
 				switch t {
-					case TType(nil, [p]) if (nil.toString() == 'Null' && '[Int][Float][Bool]'.indexOf('['+p.getID()+']') != -1):
+					case TType(nil, [p]) if (nil.toString() == 'Null' && isPrimitive(p.getID())):
 						('o.writeNull'+p.getID()).resolve();
 					default:
 						var id = t.getID();
 						switch id {
-							case 'String': macro writeString;
-							case 'Int', 'Bool', 'Float': 
+							case 'String': 
+								macro writeString;
+							case 'Int', 'Bool', 'Float', 'Single': 
 								'o.write$id'.resolve();
 							default: 
 								t = t.reduce();
@@ -169,9 +176,12 @@ class Build {
 										var name = 'write_' + ret.length;
 										ret.push(tink.macro.Member.method(name, body.func(['data'.toArg(t.toComplex())], false)));									
 										return name.resolve(body.pos);
-									}	
+									}
+									
 									var body = [];
+									
 									complexWriters.set(sig, addWriter(body.toMBlock()));
+									
 									body.push(
 										switch t {
 											case TEnum(e, _):
