@@ -47,7 +47,8 @@ class SerializerTest extends Base {
 			
 			writer.serialize(data);
 			
-			var src = new haxe.io.BytesInput(dst.getBytes());
+			var rep = dst.getBytes();
+			var src = new haxe.io.BytesInput(rep);
 			
 			var reader = new $reader(src);
 			var result = reader.unserialize();
@@ -103,10 +104,7 @@ class SerializerTest extends Base {
 									ret = false;
 									break;
 								}
-						if (!ret) {
-							trace(e.toString());
-							trace(f.toString());
-						}
+						e.toString();
 						ret;
 					default:
 						throw 'assert';
@@ -114,6 +112,7 @@ class SerializerTest extends Base {
 		if (compare(expected, found)) assertTrue(true);
 		else fail('expected $expected, found $found');
 	}
+	
 	function testAtoms() {
 		roundtrip(5);
 		roundtrip('foo');
@@ -132,12 +131,14 @@ class SerializerTest extends Base {
 		roundtrip([1 => 5, 3 => 6]);
 		roundtrip([{ x: 3 } => true, { x: 5} => false ]);
 	}
+	
 	function testComplex() {
 		roundtrip([for (i in 0...100) {
 			reoijergt: i,
 			str: 'foo$i'
 		}]);
 	}
+	
 	function testIdentities() {
 		var datas = [{}, {}, {}, {}];
 		var res = roundtrip([for (i in 0...100) datas[i % datas.length]]);

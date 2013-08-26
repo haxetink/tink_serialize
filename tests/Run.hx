@@ -16,6 +16,7 @@ class Run {
 	}
 }
 
-class Write extends tink.serialize.Serializer<Map<String, Int>, haxe.io.BytesOutput> {}
+// class Read extends tink.serialize.Unserializer<{ foo:String }, haxe.io.Input> {}
 
-class Read extends tink.serialize.Unserializer<Map<String, Int>, haxe.io.Input> {}
+// class Write extends tink.serialize.Serializer<Map<String, Int>, haxe.io.BytesOutput> {}
+// class Read extends tink.serialize.Unserializer<Map<String, Int>, haxe.io.Input> {}

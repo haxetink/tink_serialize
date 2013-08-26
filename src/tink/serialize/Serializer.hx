@@ -7,10 +7,12 @@ private class Cache<D, T:haxe.io.Output> {
 	var counter:Int = 1;
 	var o:Output<T>;
 	var map:Map<D, Int>;
+	
 	public function new(o, map) {
 		this.o = o;
 		this.map = map;
 	}
+	
 	public inline function write(data:D, encoder) 
 		if (data == null) o.writeByte(0);
 		else {

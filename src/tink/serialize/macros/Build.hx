@@ -62,9 +62,11 @@ class Build {
 		'Float' => true,
 		'Bool' => true
 	].exists;
+	
 	static public function unserializer():Array<Field> {
 		var ret = [],
 			complexReaders = new haxe.ds.StringMap<Expr>();
+			
 		function getReader(t:Type):Expr
 			return
 				switch t {
@@ -81,13 +83,24 @@ class Build {
 								var sig = Context.signature(t) + Std.string(t);
 								if (!complexReaders.exists(sig)) {
 									
-									function addReader(body:Expr) {
+									function addReader(body:Expr, ?args:Array<FunctionArg>) {
 										var name = 'read_' + ret.length;
-										var reader = tink.macro.Member.method(name, body.func(t.toComplex()));
+										var reader = tink.macro.Member.method(
+											name, 
+											body.func(
+												args, 
+												args == null ? t.toComplex() : null,
+												args == null
+											)
+										);
 										ret.push(reader);
 										reader.isPublic = false;
 										return name.resolve(body.pos);
-									}	
+									}
+									
+									function cached(init:Expr, decodeTo:Expr)
+										return macro anons.read(function () return $init, ${addReader(decodeTo, ['ret'.toArg()])});
+												
 									var body = [];
 									complexReaders.set(sig, addReader(body.toMBlock()));
 									body.push(
@@ -103,6 +116,7 @@ class Build {
 													});
 												
 												add(macro null);
+												
 												for (name in e.names) {
 													var info = getEnumInfo(e, name);
 													var ret = name.resolve();
@@ -123,32 +137,31 @@ class Build {
 											case TInst(cl, [p]) if (cl.toString() == 'Array' || cl.toString() == 'List'):
 												var reader = getReader(p),
 													cl = cl.toString();
-												macro {
-													var ret = new $cl();
-													for (_ in 0...i.readInt())
+												cached(macro new $cl(), macro {
+													for (x in 0...i.readInt())
 														ret.push($reader());
-													ret;
-												}
+												});
 											case TAnonymous(anon): 
-												var reader = addReader(EObjectDecl([for (f in normalizeFields(anon)) {
-													field: f.name,
-													expr: getReader(f.type).call(),
-												}]).at());
-												
-												macro anons.read($reader);
+												cached(
+													macro cast {}, 
+													[for (f in normalizeFields(anon)) 
+														['ret', f.name].drill().assign(getReader(f.type).call())
+													].toBlock()
+												);
 											case map if (Context.unify(map, (macro : Map<Dynamic, Dynamic>).toType().sure())):
 												var ct = map.toComplex();
 												
-												function reader(name) 
-													return getReader((macro {
+												function getType(name) 
+													return (macro {
 														var map:$ct = null;
 														map.$name().next();
-													}).typeof().sure());
+													}).typeof().sure();
 													
-												var k = reader('keys'),
-													v = reader('iterator');
-												macro readMap(new Map(), $k, $v);	
-												
+												var k = getType('keys'),
+													v = getType('iterator');
+												var kct = k.toComplex(),
+													vct = v.toComplex();
+												cached(macro new Map<$kct, $vct>(), macro readMap(ret, ${getReader(k)}, ${getReader(v)}));	
 											case v: 
 												Context.currentPos().error('Type not supported: $t');
 										}
@@ -160,14 +173,17 @@ class Build {
 		var type = getParam('tink.serialize.Unserializer');
 		var main = getReader(type);
 		var m = tink.macro.Member.method('unserialize', (macro $main()).func(type.toComplex()));
+		
 		m.overrides = true;
 		ret.push(m);			
+		
 		return ret;
 	}
+	
 	static public function serializer():Array<Field> {
 		var ret = [],
 			complexWriters = new haxe.ds.StringMap<Expr>();			
-		
+				
 		function getWriter(t:Type):Expr
 			return
 				switch t {
@@ -190,7 +206,9 @@ class Build {
 										ret.push(tink.macro.Member.method(name, body.func(['data'.toArg(t.toComplex())], false)));									
 										return name.resolve(body.pos);
 									}
-									
+									function cached(e:Expr) 
+										return macro anons.write(data, $e{addWriter(e)});
+										
 									var body = [];
 									
 									complexWriters.set(sig, addWriter(body.toMBlock()));
@@ -220,16 +238,15 @@ class Build {
 													else $sw;
 											case TInst(cl, params) if (cl.toString() == 'Array' || cl.toString() == 'List'):
 												var writer = getWriter(params[0]);
-												macro {
+												cached(macro {
 													o.writeInt(data.length);
 													for (data in data)
 														$writer(data);
-												}
+												});
 											case TAnonymous(anon): 	
-												var writer = addWriter([for (f in normalizeFields(anon))
+												cached([for (f in normalizeFields(anon))
 													getWriter(f.type).call([['data', f.name].drill()]),
 												].toBlock());
-												macro anons.write(data, $writer);
 												
 											case map if (Context.unify(map, (macro : Map<Dynamic, Dynamic>).toType().sure())):
 												var ct = map.toComplex();
@@ -242,7 +259,7 @@ class Build {
 													
 												var k = writer('keys'),
 													v = writer('iterator');
-												macro writeMap(data, $k, $v);	
+												cached(macro writeMap(data, $k, $v));
 											case v: 
 												Context.currentPos().error('Type not supported: $t');
 										}
