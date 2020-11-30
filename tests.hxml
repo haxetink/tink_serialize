@@ -3,3 +3,4 @@
 -cp tests
 -main RunTests
 -dce full
+-D analyzer-optimize

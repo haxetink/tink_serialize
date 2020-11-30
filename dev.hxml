@@ -1,4 +1,5 @@
 -lib tink_serialize
+-lib tink_json
+-js bin/js/tests.js
 -lib travix
 tests.hxml
---interp

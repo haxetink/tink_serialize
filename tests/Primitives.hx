@@ -23,12 +23,13 @@ class Primitives {
     var ints = [for (i in 0...32) 1 << i];
     ints.unshift(0);
 
-    var max = ints[ints.length - 1];
+    var max = 1 << 30;
     for (i in 0...ints.length)
       ints.push(Std.random(max));
 
     for (i in ints) {
       var bin = enc.encode(i);
+
       var res = dec.tryDecode(bin);
       asserts.assert(res.match(Success(_)));
       switch res {

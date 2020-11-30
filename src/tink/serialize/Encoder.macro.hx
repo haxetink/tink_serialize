@@ -161,7 +161,7 @@ class Encoder<T> {
       addFields(res);
       addFields(macro class {
         public function encode(data) {
-          out = new haxe.io.BytesBuffer();
+          reset();
           ${res.expr};
           return out.getBytes();
         }

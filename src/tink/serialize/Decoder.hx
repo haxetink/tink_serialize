@@ -31,11 +31,16 @@ class DecoderBase {
     return ret;
   }
 
-  function string()
-    return bytes().toString();
+  function string() {
+    var end = pos;
+    while (src.fastGet(end) != 0xFF) end++;
+    var ret = wrapped.getString(pos, end - pos);
+    pos = end + 1;
+    return ret;
+  }
 
   function float()
-    return fromInput(i -> input.readFloat());
+    return fromInput(i -> input.readDouble());
 
   inline function fromInput<X>(f:BytesInput->X) {
     input.position = pos;
