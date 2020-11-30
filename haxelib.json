@@ -8,7 +8,7 @@
 	"releasenote": "Initial verions",
 	"contributors": ["back2dos"],
 	"dependencies": {
-		"tink_macro": "0.0.0-alpha"
+		"tink_typecrawler": "0.0.0-alpha"
 	},
-	"classPath": "src" 
+	"classPath": "src"
 }

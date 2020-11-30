@@ -1,6 +1,4 @@
--lib tink_macro
--cp src
+-lib tink_unittest
 -cp tests
--main Run
--neko bin/tests.n
-#iota start Run.bat
+-main RunTests
+-dce full
