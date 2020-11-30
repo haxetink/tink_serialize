@@ -1,4 +1,5 @@
 -lib tink_unittest
+-lib deep_equal
 -cp tests
 -main RunTests
 -dce full

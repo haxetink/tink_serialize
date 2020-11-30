@@ -134,7 +134,7 @@ class Decoder<T> {
 
       addFields(res);
       addFields(macro class {
-        public function decode(data:haxe.io.BytesData) {
+        public function decode(data:haxe.io.Bytes) {
           reset(data);
           return ${res.expr};
         }
