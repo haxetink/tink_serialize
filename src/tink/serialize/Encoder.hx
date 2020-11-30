@@ -33,11 +33,11 @@ class EncoderBase {
 
   function dynInt(i:UInt)
     if (i < 0x80) out.addByte(i);
-    else if (i < 0xC000) {
+    else if (i < 0x3FFF) {
       out.addByte((i >> 8) | 0x80);
       out.addByte(i & 0xFF);
     }
-    else if (i < 0xE00000) {
+    else if (i < 0x1FFFFF) {
       out.addByte((i >> 16) | 0xC0);
       out.addByte((i >> 8) & 0xFF);
       out.addByte(i & 0xFF);

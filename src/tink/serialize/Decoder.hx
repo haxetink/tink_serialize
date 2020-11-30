@@ -60,9 +60,9 @@ class DecoderBase {
     var ret = byte();
     return
       if (ret < 0x80) ret;
-      else if (ret <= 0xC0)
+      else if (ret < 0xC0)
         ((ret ^ 0x80)) << 8 | byte();
-      else if (ret <= 0xE0)
+      else if (ret < 0xE0)
         ((ret ^ 0xC0)) << 16 | (byte() << 8) | byte();
       else {
         int32();

@@ -6,19 +6,30 @@ class Primitives {
 
   }
 
+  function byte(b:Int) {
+    return [for (i in 0...8) if (b & (0x80 >> i) == 0) '0' else '1'].join('');
+  }
+
+  function binary(i:Int)
+    return (switch i >> 8 {
+      case 0: '';
+      case v: binary(v) + ' ';
+    }) + byte(i);
+
   public function ints() {
     var enc = new Encoder<Int>(),
         dec = new Decoder<Int>();
 
-    // trace(enc.encode(16512).toHex());
     var ints = [for (i in 0...32) 1 << i];
     ints.unshift(0);
-    // var ints = [16384];
+
+    var max = ints[ints.length - 1];
+    for (i in 0...ints.length)
+      ints.push(Std.random(max));
 
     for (i in ints) {
-      // dec.decode(enc.encode(i));
-      var res = dec.tryDecode(enc.encode(i));
-      // trace(enc.encode(i).toHex());
+      var bin = enc.encode(i);
+      var res = dec.tryDecode(bin);
       asserts.assert(res.match(Success(_)));
       switch res {
         case Success(v):
@@ -26,7 +37,19 @@ class Primitives {
         default:
       }
     }
-      // asserts.assert(.match(Success(_ == i => true)));
+
+    return asserts.done();
+  }
+
+  public function floats() {
+    var enc = new Encoder<Float>(),
+        dec = new Decoder<Float>();
+
+    for (i in 0...100) {
+      var f = Math.tan(Math.random() * Math.PI);
+      asserts.assert(dec.decode(enc.encode(f)) - f < .00001);
+    }
+
     return asserts.done();
   }
 }
