@@ -27,7 +27,7 @@ class Encoder<T> extends CodecBase  {
     return macro float(data);
 
   public function int():Expr
-    return macro dynInt(data);
+    return macro dynInt((data:Int));
 
   public function dyn(e:Expr, ct:ComplexType):Expr
     return macro {
