@@ -23,7 +23,7 @@ class Primitives {
     var ints = [for (i in 0...32) 1 << i];
     ints.unshift(0);
 
-    var max = 1 << 30;
+    var max = (1 << 30) - 1; // https://github.com/HaxeFoundation/haxe/issues/9974
     for (i in 0...ints.length)
       ints.push(Std.random(max));
 
