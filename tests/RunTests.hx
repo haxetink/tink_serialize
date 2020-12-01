@@ -12,8 +12,7 @@ class RunTests {
   public function new() {}
 
   public function random() {
-    var e = new Encoder<Random>();
-    var data:Random = {
+    final data:Random = {
       foo: 'foo value',
       bar: [Hsv({ hue: 120, saturation: 100, value: 50 }), Hsl({ hue: 120, saturation: 100, lightness: 50 })],
       glargh: Some(White),
@@ -24,11 +23,10 @@ class RunTests {
       custom: new Foo('foobar'),
     }
 
-    var bin = e.encode(data);
+    final bin = tink.Serialize.encode(data);
+    final decoded:Random = tink.Serialize.decode(bin);
 
-    var d = new Decoder<Random>();
-
-    asserts.assert(compare(data, d.decode(bin)).match(Success(_)));
+    asserts.assert(compare(data, decoded).match(Success(_)));
 
     return asserts.done();
   }
