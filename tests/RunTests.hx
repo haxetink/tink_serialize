@@ -21,6 +21,7 @@ class RunTests {
       beep: [{ boop: null }, { boop: 432 }],
       date: Date.now(),
       bytes: haxe.io.Bytes.ofString('bytes'),
+      custom: new Foo('foobar'),
     }
 
     var bin = e.encode(data);

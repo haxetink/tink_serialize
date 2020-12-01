@@ -11,12 +11,7 @@ using haxe.macro.Tools;
 using tink.MacroApi;
 using tink.CoreApi;
 
-class Decoder<T> {
-  final crawler:Crawler;
-
-  function new(crawler)
-    this.crawler = crawler;
-
+class Decoder<T> extends CodecBase {
   public function wrap(placeholder:Expr, ct:ComplexType):Function
     return placeholder.func(ct);
 
@@ -105,6 +100,15 @@ class Decoder<T> {
         }
       ).at(pos)}
     }
+    
+  override function processCustom(custom:CustomRule, original:Type, gen:Type->Expr):Expr {
+    var original = original.toComplex();
+    return switch custom {
+      case WithFunction(e):
+        var rep = (macro @:pos(e.pos) { var f = null; (($e)(f()) : $original); f(); }).typeof().sure();
+        macro @:pos(e.pos) ($e)(${gen(rep)});
+    }
+  }
 
   public function rescue(t:Type, pos:Position, gen:GenType):Option<Expr>
     return None;
@@ -115,12 +119,10 @@ class Decoder<T> {
   public function shouldIncludeField(c:ClassField, owner:Option<ClassType>):Bool
     return Helper.shouldIncludeField(c, owner);
 
-  public function drive(type:Type, pos:Position, gen:GenType):Expr
-    return gen(type, pos);
   static function build()
     return BuildCache.getType('tink.serialize.Decoder', null, null, ctx -> {
 
-      var res = Crawler.crawl(ctx.type, ctx.pos, Decoder.new);
+      var res = Crawler.crawl(ctx.type, ctx.pos, Decoder.new.bind(':tink.decode'));
 
       var name = ctx.name;
 

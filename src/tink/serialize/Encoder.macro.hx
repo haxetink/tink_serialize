@@ -11,12 +11,7 @@ using haxe.macro.Tools;
 using tink.MacroApi;
 using tink.CoreApi;
 
-class Encoder<T> {
-  final crawler:Crawler;
-
-  function new(crawler)
-    this.crawler = crawler;
-
+class Encoder<T> extends CodecBase  {
   public function wrap(placeholder:Expr, ct:ComplexType):Function
     return placeholder.func(['data'.toArg(ct)], false);
 
@@ -130,6 +125,23 @@ class Encoder<T> {
       var data = cast data;
       $e;
     }
+    
+  override function processCustom(custom:CustomRule, original:Type, gen:Type->Expr):Expr {
+    var original = original.toComplex();
+    return switch custom {
+      case WithFunction(e):
+        if (e.expr.match(EFunction(_))) {
+          var ret = e.pos.makeBlankType();
+          e = macro @:pos(e.pos) ($e:$original->$ret);
+        }
+        //TODO: the two cases look suspiciously similar
+        var rep = (macro @:pos(e.pos) $e((cast null:$original))).typeof().sure();
+        return macro @:pos(e.pos) {
+          var data = $e(data);
+          ${gen(rep)};
+        }
+    }
+  }
 
   public function rescue(t:Type, pos:Position, gen:GenType):Option<Expr>
     return None;
@@ -140,13 +152,10 @@ class Encoder<T> {
   public function shouldIncludeField(c:ClassField, owner:Option<ClassType>):Bool
     return Helper.shouldIncludeField(c, owner);
 
-  public function drive(type:Type, pos:Position, gen:GenType):Expr
-    return gen(type, pos);
-
   static function build()
     return BuildCache.getType('tink.serialize.Encoder', null, null, ctx -> {
 
-      var res = Crawler.crawl(ctx.type, ctx.pos, Encoder.new);
+      var res = Crawler.crawl(ctx.type, ctx.pos, Encoder.new.bind(':tink.encode'));
 
       var name = ctx.name;
 
