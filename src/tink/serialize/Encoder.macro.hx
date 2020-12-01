@@ -29,7 +29,7 @@ class Encoder<T> {
     return macro string(data);
 
   public function float():Expr
-    return macro writeFloat(data);
+    return macro float(data);
 
   public function int():Expr
     return macro dynInt(data);
@@ -50,13 +50,13 @@ class Encoder<T> {
     }
 
   public function bool():Expr
-    return macro writeBool(data);
+    return macro bool(data);
 
   public function date():Expr
-    return macro writeFloat(data.getTime());
+    return macro float(data.getTime());
 
   public function bytes():Expr
-    return macro writeBytes();
+    return macro bytes(data);
 
   public function anon(fields:Array<FieldInfo>, ct:ComplexType):Expr
     return [for (f in fields) {

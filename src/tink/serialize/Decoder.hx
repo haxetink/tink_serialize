@@ -74,6 +74,6 @@ class DecoderBase {
       }
   }
 
-  function readBool()
+  inline function bool()
     return src.fastGet(pos++) == 1;
 }

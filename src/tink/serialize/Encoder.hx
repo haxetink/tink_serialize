@@ -84,7 +84,8 @@ class EncoderBase {
   public function new() {}
   function reset()
     out = new BytesBuffer();
-  function string(s:String) {
+  
+  inline function string(s:String) {
     // if (s.length < 100)
     //   switch strings[s] {
     //     case null:
@@ -132,10 +133,10 @@ class EncoderBase {
   inline function esc()
     out.addByte(0xFF);
 
-  inline function writeBool(f)
+  inline function bool(f)
     out.addByte(if (f) 1 else 0);
 
-  inline function writeFloat(f)
+  inline function float(f)
     out.addDouble(f);
 
   inline function len(i:UInt)

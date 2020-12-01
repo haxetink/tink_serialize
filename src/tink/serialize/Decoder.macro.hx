@@ -44,13 +44,13 @@ class Decoder<T> {
     }
 
   public function bool():Expr
-    return macro readBool();
+    return macro bool();
 
   public function date():Expr
-    return macro writeFloat(data.getTime());
+    return macro Date.fromTime(float());
 
   public function bytes():Expr
-    return macro writeBytes();
+    return macro bytes();
 
   public function anon(fields:Array<FieldInfo>, ct:ComplexType):Expr
     return EObjectDecl([for (f in fields) {

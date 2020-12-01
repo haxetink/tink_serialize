@@ -4,6 +4,7 @@ import tink.serialize.*;
 import tink.unit.*;
 import tink.testrunner.*;
 import deepequal.DeepEqual.compare;
+import Data;
 
 @:asserts
 class RunTests {
@@ -17,7 +18,9 @@ class RunTests {
       bar: [Hsv({ hue: 120, saturation: 100, value: 50 }), Hsl({ hue: 120, saturation: 100, lightness: 50 })],
       glargh: Some(White),
       blargh: [5419896 => { yo: false }],
-      beep: [{ boop: null }, { boop: 432 }]
+      beep: [{ boop: null }, { boop: 432 }],
+      date: Date.now(),
+      bytes: haxe.io.Bytes.ofString('bytes'),
     }
 
     var bin = e.encode(data);
@@ -38,19 +41,3 @@ class RunTests {
 
 }
 
-typedef Random = {
-  foo: String,
-  bar:Array<Color>,
-  glargh:haxe.ds.Option<Color>,
-  blargh:Map<Int, { yo: Bool }>,
-  beep: Array<{
-    ?boop: Int,
-  }>
-};
-
-enum Color {
-  Rgb(a:Int, b:Int, c:Int);
-  Hsv(hsv:{ hue:Int, saturation:Int, value:Int });
-  Hsl(value:{ hue:Int, saturation:Int, lightness:Int });
-  White;
-}
