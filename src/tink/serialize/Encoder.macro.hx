@@ -71,17 +71,21 @@ class Encoder<T> extends CodecBase  {
   public function map(k:Expr, v:Expr):Expr
     return macro {
       for (k => v in data) {
-        {
-          var data = k;
-          $k;
-        }
-        {
-          var data = v;
-          $v;
-        }
+        ${tuple([
+          {gen: k, value: macro k},
+          {gen: v, value: macro v},
+        ])}
       }
+      
       esc();
     }
+    
+  function tuple(elements:Array<{gen:Expr, value:Expr}>) {
+    return macro $b{[for(e in elements) macro {
+      var data = ${e.value};
+      ${e.gen};
+    }]}
+  }
 
   public function enm(constructors:Array<EnumConstructor>, ct:ComplexType, pos:Position, gen:GenType):Expr
     return ESwitch(macro data, [
@@ -151,6 +155,18 @@ class Encoder<T> extends CodecBase  {
 
   public function shouldIncludeField(c:ClassField, owner:Option<ClassType>):Bool
     return Helper.shouldIncludeField(c, owner);
+  
+  override public function drive(type:Type, pos:Position, gen:GenType):Expr
+    return
+      switch type.reduce() {
+        case t = TAbstract(_.get() => {pack: ['tink', 'core'], name: 'Pair'}, [a, b]):
+          var ct = t.toComplex();
+          this.tuple([
+            {gen: gen(a, pos), value: macro (data:$ct).a},
+            {gen: gen(b, pos), value: macro (data:$ct).b},
+          ]);
+        default: super.drive(type, pos, gen);
+      }
 
   static function build()
     return BuildCache.getType('tink.serialize.Encoder', null, null, ctx -> {

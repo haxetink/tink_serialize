@@ -1,5 +1,6 @@
 package ;
 
+import tink.core.Pair;
 import tink.serialize.*;
 import tink.unit.*;
 import tink.testrunner.*;
@@ -27,6 +28,17 @@ class RunTests {
     final decoded:Random = tink.Serialize.decode(bin);
 
     asserts.assert(compare(data, decoded).match(Success(_)));
+
+    return asserts.done();
+  }
+  
+  public function pair() {
+    final data:Pair<Int, String> = new Pair(1, 'foo');
+    final bin = tink.Serialize.encode(data);
+    final decoded:Pair<Int, String> = tink.Serialize.decode(bin);
+
+    asserts.assert(decoded.a == data.a);
+    asserts.assert(decoded.b == data.b);
 
     return asserts.done();
   }

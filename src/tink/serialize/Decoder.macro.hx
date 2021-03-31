@@ -59,6 +59,22 @@ class Decoder<T> extends CodecBase {
 
   public function map(k:Expr, v:Expr):Expr
     return macro [while (!esc()) $k => $v];
+  
+  function tuple(elements:Array<Expr>, make, ?out) {
+    var exprs = [];
+    var vars = [];
+    
+    for(i in 0...elements.length) {
+      var name = '_e$i';
+      exprs.push(macro var $name = ${elements[i]});
+      vars.push(macro $i{name});
+    }
+    
+    exprs.push(make(vars));
+    if(out != null) exprs.push(out);
+    
+    return macro $b{exprs};
+  }
 
   public function enm(constructors:Array<EnumConstructor>, ct:ComplexType, pos:Position, gen:GenType):Expr
     return ESwitch(macro dynInt(), [
@@ -130,6 +146,14 @@ class Decoder<T> extends CodecBase {
 
   public function shouldIncludeField(c:ClassField, owner:Option<ClassType>):Bool
     return Helper.shouldIncludeField(c, owner);
+  
+  override public function drive(type:Type, pos:Position, gen:GenType):Expr
+    return
+      switch type.reduce() {
+        case TAbstract(_.get() => {pack: ['tink', 'core'], name: 'Pair'}, [a, b]):
+          this.tuple([gen(a, pos), gen(b, pos)], values -> (macro var __ret = new tink.core.Pair(${values[0]}, ${values[1]})), macro __ret);
+        default: super.drive(type, pos, gen);
+      }
 
   static function build()
     return BuildCache.getType('tink.serialize.Decoder', null, null, ctx -> {
