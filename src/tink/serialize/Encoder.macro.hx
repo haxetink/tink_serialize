@@ -172,6 +172,7 @@ class Encoder<T> extends CodecBase  {
     return BuildCache.getType('tink.serialize.Encoder', null, null, ctx -> {
 
       var res = Crawler.crawl(ctx.type, ctx.pos, Encoder.new.bind(':tink.encode'));
+      var ct = ctx.type.toComplex();
 
       var name = ctx.name;
 
@@ -185,7 +186,7 @@ class Encoder<T> extends CodecBase  {
 
       addFields(res);
       addFields(macro class {
-        public function encode(data) {
+        public function encode(data:$ct) {
           reset();
           ${res.expr};
           return out.getBytes();

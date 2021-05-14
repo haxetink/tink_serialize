@@ -42,6 +42,18 @@ class RunTests {
 
     return asserts.done();
   }
+  
+  public function arrayInput() {
+    final data = [for(i in 0...3) i];
+    final bin = tink.Serialize.encode(data);
+    final decoded:Array<Int> = tink.Serialize.decode(bin);
+
+    asserts.assert(decoded.length == data.length);
+    for(i in 0...decoded.length)
+      asserts.assert(decoded[i] == data[i]);
+
+    return asserts.done();
+  }
 
   static function main() {
     Runner.run(TestBatch.make(
