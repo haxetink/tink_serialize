@@ -17,7 +17,7 @@ class Encoder<T> extends CodecBase  {
 
   public function nullable(e:Expr):Expr
     return macro
-      if (data == null) esc();
+      if ((data :Dynamic) == null) esc();
       else $e;
 
   public function string():Expr
