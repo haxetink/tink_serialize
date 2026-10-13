@@ -77,24 +77,48 @@ private class BytesBuffer {
     }
 }
 #end
+typedef EncoderOptions = {
+  /**
+    Strings shorter than this are deduplicated: repeated occurrences are
+    written as back-references. Set to 0 to disable. Defaults to 100.
+  **/
+  final ?stringCacheThreshold:Int;
+}
+
 class EncoderBase {
+  static inline var DEFAULT_STRING_CACHE_THRESHOLD = 100;
+
   var out:BytesBuffer;
-  // var strings = new Map();
-  // var stringCounter = 0;
-  public function new() {}
-  function reset()
+  final stringCacheThreshold:Int;
+  var strings:Map<String, Int>;
+  var stringCounter:Int;
+
+  public function new(?options:EncoderOptions) {
+    stringCacheThreshold = switch options {
+      case null | { stringCacheThreshold: null }: DEFAULT_STRING_CACHE_THRESHOLD;
+      case { stringCacheThreshold: v }: v;
+    }
+  }
+
+  function reset() {
     out = new BytesBuffer();
-  
-  inline function string(s:String) {
-    // if (s.length < 100)
-    //   switch strings[s] {
-    //     case null:
-    //       strings[s] = stringCounter++;
-    //     case v:
-    //       out.addByte(0xFD);
-    //       len(v);
-    //       return;
-    //   }
+    if (stringCacheThreshold > 0)
+      strings = new Map();
+    stringCounter = 0;
+  }
+
+  function string(s:String) {
+    // every literal string gets an index, so the decoder can just record them all
+    if (s.length > 0 && s.length < stringCacheThreshold)
+      switch strings[s] {
+        case null:
+          strings[s] = stringCounter;
+        case v:
+          out.addByte(0xFD);// cannot start a valid UTF-8 sequence
+          len(v);
+          return;
+      }
+    stringCounter++;
     writeString(s);
   }
 

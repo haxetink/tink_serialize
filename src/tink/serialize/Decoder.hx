@@ -13,6 +13,7 @@ class DecoderBase {
   var input:BytesInput;
   var pos:Int;
   var max:Int;
+  var strings:Array<String>;
 
   public function new() {}
 
@@ -22,6 +23,7 @@ class DecoderBase {
     src = data.getData();
     pos = 0;
     max = data.length;
+    strings = [];
   }
 
   function bytes() {
@@ -32,10 +34,15 @@ class DecoderBase {
   }
 
   function string() {
+    if (src.fastGet(pos) == 0xFD) {
+      pos++;
+      return strings[len()];
+    }
     var end = pos;
     while (src.fastGet(end) != 0xFF) end++;
     var ret = wrapped.getString(pos, end - pos);
     pos = end + 1;
+    strings.push(ret);
     return ret;
   }
 

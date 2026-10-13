@@ -24,9 +24,9 @@ class Serialize {
       }
   }
 
-  static macro public function encode(e:Expr):ExprOf<Bytes> {
+  static macro public function encode(e:Expr, ?options:ExprOf<tink.serialize.Encoder.EncoderOptions>):ExprOf<Bytes> {
     var t = e.typeof().sure();
     var ct = t.toComplex();
-    return macro @:pos(e.pos) new tink.serialize.Encoder<$ct>().encode($e);
+    return macro @:pos(e.pos) new tink.serialize.Encoder<$ct>($options).encode($e);
   }
 }

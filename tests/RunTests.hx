@@ -55,6 +55,23 @@ class RunTests {
     return asserts.done();
   }
 
+  public function stringCache() {
+    final data = [for (i in 0...20) ['foo', 'bar', '', 'a much longer string', 'föö 🙂']];
+    final big = tink.Serialize.encode(data, { stringCacheThreshold: 0 }),
+          small = tink.Serialize.encode(data),
+          partial = tink.Serialize.encode(data, { stringCacheThreshold: 10 });
+
+    asserts.assert(small.length < partial.length);
+    asserts.assert(partial.length < big.length);
+
+    for (bin in [big, small, partial]) {
+      final decoded:Array<Array<String>> = tink.Serialize.decode(bin);
+      asserts.assert(compare(data, decoded).match(Success(_)));
+    }
+
+    return asserts.done();
+  }
+
   static function main() {
     Runner.run(TestBatch.make(
       new Primitives(),
